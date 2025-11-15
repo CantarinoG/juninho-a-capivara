@@ -12,6 +12,8 @@ game_state = MENU_STATE
 sound_enabled = True
 mouse_pos = (0, 0)
 
+music.play("scent_of_forest")
+
 # =====Classes=====
 
 class Button: 
@@ -47,8 +49,11 @@ def start_game():
     game_state = GAME_STATE
 
 def toggle_sound():
-    global sound_enabled
+    global sound_enabled, sound_button
     sound_enabled = not sound_enabled
+    text = "Desligar Som" if sound_enabled else "Ligar Som"
+    sound_button.text = text
+    play_music_if_enabled("scent_of_forest")
 
 def exit_game():
     exit()
@@ -56,6 +61,12 @@ def exit_game():
 start_button.on_click = start_game
 sound_button.on_click = toggle_sound
 exit_button.on_click = exit_game
+
+def play_music_if_enabled(name, volume=1):
+    music.stop()
+    if sound_enabled:
+        music.set_volume = volume
+        music.play(name)
 
 def draw():
     screen.clear()
