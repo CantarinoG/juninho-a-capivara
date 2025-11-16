@@ -4,6 +4,8 @@ WIDTH = 800
 HEIGHT = 600
 TITLE = "Juninho, a Capivara"
 ICON = "images/icon.png"
+WORLD_WIDTH = 2496
+TILE_SIZE = 64
 
 MENU_STATE = 0
 GAME_STATE = 1
@@ -11,6 +13,13 @@ GAME_STATE = 1
 game_state = MENU_STATE
 sound_enabled = True
 mouse_pos = (0, 0)
+camera_x = 0
+
+solid_tiles = [ # x, y, tiles_num, tile_img
+    (0, 536, 13, "ground_tile"),
+    (832, 536, 13, "bridge_tile"),
+    (1664, 536, 13, "ground_tile")
+]
 
 music.play("scent_of_forest")
 
@@ -73,8 +82,23 @@ def draw():
 
     if game_state == MENU_STATE:
         draw_menu()
-    else:
+    elif game_state == GAME_STATE:
         screen.fill((0, 0, 0))
+        draw_tiles()
+
+def draw_tiles():
+    screen_left  = camera_x
+    screen_right = camera_x + WIDTH
+
+    for x, y, tiles_num, tile_img in solid_tiles:
+        for i in range(tiles_num):
+            tile_x = x + i * TILE_SIZE
+            if tile_x + TILE_SIZE < screen_left:
+                continue
+            if tile_x > screen_right:
+                continue
+
+            screen.blit(tile_img, (tile_x - camera_x, y))
 
 def draw_menu():
     menu_background.draw()
