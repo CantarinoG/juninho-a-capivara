@@ -86,6 +86,7 @@ class Player(Actor):
             self.vy = 0
 
         if keyboard.space and on_ground:
+            play_sound_if_enabled("jump")
             self.vy = JUMP_FORCE
 
         camera_x = self.x - WIDTH // 2
@@ -208,14 +209,22 @@ def play_music_if_enabled(name, volume=1):
         music.set_volume = volume
         music.play(name)
 
+def play_sound_if_enabled(name):
+    if sound_enabled:
+        sound = getattr(sounds, name, None)
+        if sound:
+            sound.play()
+
 def update():
     global game_state
     if game_state == GAME_STATE:
         player.update()
         enemy.update()
         if player.colliderect(enemy):
+            play_sound_if_enabled("lose")
             game_state = LOSE_STATE
         elif player.colliderect(flag):
+            play_sound_if_enabled("win")
             game_state = WIN_STATE
 
 def draw():
