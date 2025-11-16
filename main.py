@@ -157,7 +157,10 @@ class Flag(Actor):
 
 menu_background = Actor("menu_background", (WIDTH // 2, HEIGHT // 2))
 game_background = Actor("game_background", (WIDTH // 2, HEIGHT // 2))
+win_background = Actor("win_background", (WIDTH // 2, HEIGHT // 2))
+lose_background = Actor("lose_background", (WIDTH // 2, HEIGHT // 2))
 
+back_button = Button("button_background", WIDTH // 2, 300, "Voltar")
 start_button = Button("button_background", WIDTH // 2, 170, "Começar")
 sound_button = Button("button_background", WIDTH // 2, 250, "Desligar Som")
 exit_button = Button("button_background", WIDTH // 2, 330, "Sair")
@@ -169,9 +172,19 @@ flag = Flag(2400, 504)
 
 # =====Funções principais=====
 
-def start_game():
+def back_to_menu():
     global game_state
+    game_state = MENU_STATE
+
+def start_game():
+    global game_state, player, enemy
     game_state = GAME_STATE
+    player.x = 32
+    player.y = 504
+    player.vy = 0
+    enemy.x = 100
+    enemy.y = 504
+    enemy.vy = 0
 
 def toggle_sound():
     global sound_enabled, sound_button
@@ -183,6 +196,7 @@ def toggle_sound():
 def exit_game():
     exit()
 
+back_button.on_click = back_to_menu
 start_button.on_click = start_game
 sound_button.on_click = toggle_sound
 exit_button.on_click = exit_game
@@ -239,9 +253,11 @@ def draw():
         enemy.draw(camera_x)
         flag.draw(camera_x)
     elif game_state == WIN_STATE:
-        screen.fill((0, 0, 0))
+        win_background.draw()
+        back_button.draw()
     elif game_state == LOSE_STATE:
-        screen.fill((0, 0, 0))
+        lose_background.draw()
+        back_button.draw()
 
 def draw_tiles():
     screen_left  = camera_x
@@ -273,3 +289,6 @@ def on_mouse_down(pos, button):
         for btn in menu_buttons:
             if btn.actor.collidepoint(pos):
                 btn.click()
+    if game_state == WIN_STATE or game_state == LOSE_STATE:
+        if back_button.actor.collidepoint(pos):
+            back_button.click()
