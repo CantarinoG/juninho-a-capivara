@@ -6,6 +6,8 @@ TITLE = "Juninho, a Capivara"
 ICON = "images/icon.png"
 WORLD_WIDTH = 2496
 TILE_SIZE = 64
+SPEED = 3
+GRAVITY = 0.5
 
 MENU_STATE = 0
 GAME_STATE = 1
@@ -42,6 +44,34 @@ class Button:
         if self.on_click:
             self.on_click()
 
+class Player(Actor):
+    def __init__(self, x, y, vx=0, vy=0):
+        super().__init__("player_0", (x, y))
+        self.vx = vx
+        self.vy = vy
+
+    def update(self):
+        global camera_x
+        self.vx = 0
+        if keyboard.left:
+            self.vx = -SPEED
+        if keyboard.right:
+            self.vx = SPEED
+        
+        #self.vy = GRAVITY
+
+        new_x = self.x + self.vx
+        if self.width/2 <= new_x < WORLD_WIDTH - self.width/2:
+            self.x = new_x
+
+        self.y += self.vy
+
+        camera_x = self.x - WIDTH // 2
+        camera_x = max(0, min(camera_x, WORLD_WIDTH - WIDTH))
+
+    def draw(self, camera_x):
+        screen.blit(self.image, (self.x - camera_x - self.width/2, self.y - self.height/2))
+
 # =====Instâncias de atores=====
 
 menu_background = Actor("menu_background", (WIDTH // 2, HEIGHT // 2))
@@ -50,6 +80,8 @@ start_button = Button("button_background", WIDTH // 2, 170, "Começar")
 sound_button = Button("button_background", WIDTH // 2, 250, "Desligar Som")
 exit_button = Button("button_background", WIDTH // 2, 330, "Sair")
 menu_buttons = [start_button, sound_button, exit_button]
+
+player = Player(32, 504)
 
 # =====Funções principais=====
 
@@ -77,6 +109,10 @@ def play_music_if_enabled(name, volume=1):
         music.set_volume = volume
         music.play(name)
 
+def update():
+    if game_state == GAME_STATE:
+        player.update()
+
 def draw():
     screen.clear()
 
@@ -85,6 +121,7 @@ def draw():
     elif game_state == GAME_STATE:
         screen.fill((0, 0, 0))
         draw_tiles()
+        player.draw(camera_x)
 
 def draw_tiles():
     screen_left  = camera_x
