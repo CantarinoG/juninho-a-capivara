@@ -22,7 +22,7 @@ solid_tiles = [ # x, y, tiles_num, tile_img
     (0, 536, 13, "ground_tile"),
     (832, 536, 13, "bridge_tile"),
     (1664, 536, 13, "ground_tile"),
-    (200, 456, 1, "platform_tile")
+    (200, 456, 2, "platform_tile")
 ]
 
 music.play("scent_of_forest")
@@ -89,6 +89,7 @@ class Player(Actor):
 # =====Instâncias de atores=====
 
 menu_background = Actor("menu_background", (WIDTH // 2, HEIGHT // 2))
+game_background = Actor("game_background", (WIDTH // 2, HEIGHT // 2))
 
 start_button = Button("button_background", WIDTH // 2, 170, "Começar")
 sound_button = Button("button_background", WIDTH // 2, 250, "Desligar Som")
@@ -149,7 +150,7 @@ def draw():
     if game_state == MENU_STATE:
         draw_menu()
     elif game_state == GAME_STATE:
-        screen.fill((0, 0, 0))
+        game_background.draw()
         draw_tiles()
         player.draw(camera_x)
 
