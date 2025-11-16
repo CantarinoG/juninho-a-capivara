@@ -143,6 +143,13 @@ class Enemy(Actor):
     def draw(self, camera_x):
         screen.blit(self.__get_image(), (self.x - camera_x - self.width/2, self.y - self.height/2))
 
+class Flag(Actor):
+    def __init__(self, x, y):
+        super().__init__("flag", (x, y))
+
+    def draw(self, camera_x):
+        screen.blit(self.image, (self.x - camera_x - self.width/2, self.y - self.height/2))
+
 # =====Instâncias de atores=====
 
 menu_background = Actor("menu_background", (WIDTH // 2, HEIGHT // 2))
@@ -155,6 +162,7 @@ menu_buttons = [start_button, sound_button, exit_button]
 
 player = Player(32, 504)
 enemy = Enemy(100, 504, 100, 500, jumping=True)
+flag = Flag(2400, 504)
 
 # =====Funções principais=====
 
@@ -213,6 +221,7 @@ def draw():
         draw_tiles()
         player.draw(camera_x)
         enemy.draw(camera_x)
+        flag.draw(camera_x)
 
 def draw_tiles():
     screen_left  = camera_x
