@@ -25,6 +25,15 @@ solid_tiles = [ # x, y, tiles_num, tile_img
     (200, 456, 2, "platform_tile")
 ]
 
+non_solid_tiles = [
+    (128, 472, 2, "grass_tile"),
+    (320, 472, 3, "grass_tile"),
+    (702, 472, 1, "flowers_tile"),
+    (1728, 472, 2, "grass_tile"),
+    (1856, 472, 1, "flowers_tile"),
+    (2048, 472, 2, "grass_tile")
+]
+
 music.play("scent_of_forest")
 
 # =====Classes=====
@@ -145,7 +154,7 @@ exit_button = Button("button_background", WIDTH // 2, 330, "Sair")
 menu_buttons = [start_button, sound_button, exit_button]
 
 player = Player(32, 504)
-enemy = Enemy(100, 504, 100, 500)
+enemy = Enemy(100, 504, 100, 500, jumping=True)
 
 # =====Funções principais=====
 
@@ -209,7 +218,9 @@ def draw_tiles():
     screen_left  = camera_x
     screen_right = camera_x + WIDTH
 
-    for x, y, tiles_num, tile_img in solid_tiles:
+    all_tiles = non_solid_tiles + solid_tiles
+
+    for x, y, tiles_num, tile_img in all_tiles:
         for i in range(tiles_num):
             tile_x = x + i * TILE_SIZE
             if tile_x + TILE_SIZE < screen_left:
