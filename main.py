@@ -8,6 +8,7 @@ WORLD_WIDTH = 2496
 TILE_SIZE = 64
 SPEED = 3
 GRAVITY = 0.5
+JUMP_FORCE = -10
 
 MENU_STATE = 0
 GAME_STATE = 1
@@ -20,7 +21,8 @@ camera_x = 0
 solid_tiles = [ # x, y, tiles_num, tile_img
     (0, 536, 13, "ground_tile"),
     (832, 536, 13, "bridge_tile"),
-    (1664, 536, 13, "ground_tile")
+    (1664, 536, 13, "ground_tile"),
+    (200, 456, 1, "platform_tile")
 ]
 
 music.play("scent_of_forest")
@@ -60,14 +62,20 @@ class Player(Actor):
         if keyboard.right:
             self.vx = SPEED
             self.flipped_x = False
-        
-        #self.vy = GRAVITY
 
         new_x = self.x + self.vx
         if self.width/2 <= new_x < WORLD_WIDTH - self.width/2:
             self.x = new_x
 
+        self.vy += GRAVITY
         self.y += self.vy
+
+        on_ground = check_collision_with_ground(self)
+        if on_ground:
+            self.vy = 0
+
+        if keyboard.space and on_ground:
+            self.vy = JUMP_FORCE
 
         camera_x = self.x - WIDTH // 2
         camera_x = max(0, min(camera_x, WORLD_WIDTH - WIDTH))
@@ -108,6 +116,22 @@ def exit_game():
 start_button.on_click = start_game
 sound_button.on_click = toggle_sound
 exit_button.on_click = exit_game
+
+def check_collision_with_ground(actor):
+    actor_bottom = actor.y + actor.height/2
+
+    for x, y, tiles_num, tile_img in solid_tiles:
+        for i in range(tiles_num):
+            tile_x = x + i * TILE_SIZE
+            tile_y = y
+            tile_rect = Rect((tile_x, tile_y), (TILE_SIZE, TILE_SIZE))
+
+            if (actor.x + actor.width/2 > tile_rect.left and
+                actor.x - actor.width/2 < tile_rect.right):
+                if actor_bottom >= tile_rect.top and actor_bottom <= tile_rect.top + actor.vy:
+                    actor.y = tile_rect.top - actor.height/2
+                    return True
+    return False
 
 def play_music_if_enabled(name, volume=1):
     music.stop()
