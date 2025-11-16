@@ -59,10 +59,38 @@ class Button:
 
 class Player(Actor):
     def __init__(self, x, y, vx=0, vy=0):
-        super().__init__("player_0", (x, y))
+        super().__init__("player", (x, y))
         self.vx = vx
         self.vy = vy
         self.flipped_x = False
+        self.on_ground = True
+        self.animations = {
+            "idle": ["player"],
+            "jumping": ["player_jumping"],
+            "walking": ["player", "player_walking"]
+        }
+        self.current_animation = "idle"
+        self.frame_index = 0
+        self.frame_timer = 0
+
+    def update_animation(self):
+        previous = self.current_animation
+
+        if not self.on_ground:
+            self.current_animation = "jumping"
+        elif self.vx != 0:
+            self.current_animation = "walking"
+        else:
+            self.current_animation = "idle"
+
+        if self.current_animation != previous:
+            self.frame_index = 0
+            self.frame_timer = 0
+
+        self.frame_timer += 1
+        if self.frame_timer > 8:
+            self.frame_timer = 0
+            self.frame_index = (self.frame_index + 1) % len(self.animations[self.current_animation])
 
     def update(self):
         global camera_x
@@ -81,19 +109,25 @@ class Player(Actor):
         self.vy += GRAVITY
         self.y += self.vy
 
-        on_ground = check_collision_with_ground(self)
-        if on_ground:
+        self.on_ground = check_collision_with_ground(self)
+        if self.on_ground:
             self.vy = 0
 
-        if keyboard.space and on_ground:
+        if keyboard.space and self.on_ground:
             play_sound_if_enabled("jump")
             self.vy = JUMP_FORCE
 
         camera_x = self.x - WIDTH // 2
         camera_x = max(0, min(camera_x, WORLD_WIDTH - WIDTH))
 
+        self.update_animation()
+
     def __get_image(self):
-        return "player_flipped_0" if self.flipped_x else "player_0"
+        #return "player_flipped_0" if self.flipped_x else "player_0"
+        image_name = self.animations[self.current_animation][self.frame_index]
+        if self.flipped_x:
+            image_name += "_flipped"
+        return image_name
 
     def draw(self, camera_x):
         screen.blit(self.__get_image(), (self.x - camera_x - self.width/2, self.y - self.height/2))
