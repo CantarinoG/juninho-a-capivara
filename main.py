@@ -86,6 +86,54 @@ class Player(Actor):
     def draw(self, camera_x):
         screen.blit(self.__get_image(), (self.x - camera_x - self.width/2, self.y - self.height/2))
 
+class Enemy(Actor):
+    def __init__(self, x, y, left_limit, right_limit, vx=0, vy=0, jumping=False):
+        super().__init__("enemy_0", (x, y))
+        self.vx = vx
+        self.vy = vy
+        self.left_limit = left_limit
+        self.right_limit = right_limit
+        self.flipped_x = False
+        self.direction = 1
+        self.jumping = jumping
+
+    def update(self):
+        global camera_x
+        self.vx = (SPEED / 2) * self.direction
+        self.flipped_x = (self.direction == -1)
+
+        new_x = self.x + self.vx
+        half_w = self.width / 2
+
+        if new_x > self.right_limit - half_w:
+            self.x = self.right_limit - half_w
+            self.direction = -1
+            self.vx = (SPEED / 2) * self.direction
+        elif new_x < self.left_limit + half_w:
+            self.x = self.left_limit + half_w
+            self.direction = 1
+            self.vx = (SPEED / 2) * self.direction
+        else:
+            self.x = new_x
+
+        self.x += self.vx
+
+        self.vy += GRAVITY
+        self.y += self.vy
+
+        on_ground = check_collision_with_ground(self)
+        if on_ground:
+            self.vy = 0
+
+        if self.jumping and on_ground:
+            self.vy = JUMP_FORCE
+
+    def __get_image(self):
+        return "enemy_flipped_0" if self.flipped_x else "enemy_0"
+
+    def draw(self, camera_x):
+        screen.blit(self.__get_image(), (self.x - camera_x - self.width/2, self.y - self.height/2))
+
 # =====Instâncias de atores=====
 
 menu_background = Actor("menu_background", (WIDTH // 2, HEIGHT // 2))
@@ -97,6 +145,7 @@ exit_button = Button("button_background", WIDTH // 2, 330, "Sair")
 menu_buttons = [start_button, sound_button, exit_button]
 
 player = Player(32, 504)
+enemy = Enemy(100, 504, 100, 500)
 
 # =====Funções principais=====
 
@@ -143,6 +192,7 @@ def play_music_if_enabled(name, volume=1):
 def update():
     if game_state == GAME_STATE:
         player.update()
+        enemy.update()
 
 def draw():
     screen.clear()
@@ -153,6 +203,7 @@ def draw():
         game_background.draw()
         draw_tiles()
         player.draw(camera_x)
+        enemy.draw(camera_x)
 
 def draw_tiles():
     screen_left  = camera_x
