@@ -49,14 +49,17 @@ class Player(Actor):
         super().__init__("player_0", (x, y))
         self.vx = vx
         self.vy = vy
+        self.flipped_x = False
 
     def update(self):
         global camera_x
         self.vx = 0
         if keyboard.left:
             self.vx = -SPEED
+            self.flipped_x = True
         if keyboard.right:
             self.vx = SPEED
+            self.flipped_x = False
         
         #self.vy = GRAVITY
 
@@ -69,8 +72,11 @@ class Player(Actor):
         camera_x = self.x - WIDTH // 2
         camera_x = max(0, min(camera_x, WORLD_WIDTH - WIDTH))
 
+    def __get_image(self):
+        return "player_flipped_0" if self.flipped_x else "player_0"
+
     def draw(self, camera_x):
-        screen.blit(self.image, (self.x - camera_x - self.width/2, self.y - self.height/2))
+        screen.blit(self.__get_image(), (self.x - camera_x - self.width/2, self.y - self.height/2))
 
 # =====Instâncias de atores=====
 
