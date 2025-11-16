@@ -12,6 +12,8 @@ JUMP_FORCE = -10
 
 MENU_STATE = 0
 GAME_STATE = 1
+WIN_STATE = 2
+LOSE_STATE = 3
 
 game_state = MENU_STATE
 sound_enabled = True
@@ -207,9 +209,14 @@ def play_music_if_enabled(name, volume=1):
         music.play(name)
 
 def update():
+    global game_state
     if game_state == GAME_STATE:
         player.update()
         enemy.update()
+        if player.colliderect(enemy):
+            game_state = LOSE_STATE
+        elif player.colliderect(flag):
+            game_state = WIN_STATE
 
 def draw():
     screen.clear()
@@ -222,6 +229,10 @@ def draw():
         player.draw(camera_x)
         enemy.draw(camera_x)
         flag.draw(camera_x)
+    elif game_state == WIN_STATE:
+        screen.fill((0, 0, 0))
+    elif game_state == LOSE_STATE:
+        screen.fill((0, 0, 0))
 
 def draw_tiles():
     screen_left  = camera_x
