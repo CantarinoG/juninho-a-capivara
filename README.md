@@ -43,4 +43,4 @@ Chegue até a bandeira no final do mapa sem encostar nos inimigos.
 
 ## Demonstação em Vídeo
 
-[![Vídeo](./thumbnail.png)]([url_do_site](https://www.youtube.com/watch?v=Td3tJkrHF_o))
+[<img src="./thumbnail.png" alt="Vídeo"/>](https://www.youtube.com/watch?v=Td3tJkrHF_o)
