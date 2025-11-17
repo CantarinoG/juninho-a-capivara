@@ -8,7 +8,7 @@ WORLD_WIDTH = 2496
 TILE_SIZE = 64
 SPEED = 3
 GRAVITY = 0.5
-JUMP_FORCE = -10
+JUMP_FORCE = -12
 
 MENU_STATE = 0
 GAME_STATE = 1
@@ -20,11 +20,18 @@ sound_enabled = True
 mouse_pos = (0, 0)
 camera_x = 0
 
-solid_tiles = [ # x, y, tiles_num, tile_img
+solid_tiles = [  # x, y, tiles_num, tile_img
     (0, 536, 13, "ground_tile"),
     (832, 536, 13, "bridge_tile"),
     (1664, 536, 13, "ground_tile"),
-    (200, 456, 2, "platform_tile")
+    (200, 440, 1, "platform_tile"),
+    (380, 450, 2, "platform_tile"),
+    (700, 440, 3, "platform_tile"),
+    (1300, 320, 2, "platform_tile"),
+    (1200, 440, 1, "platform_tile"),
+    (1800, 440, 3, "platform_tile"),
+    (2100, 440, 2, "platform_tile"),
+    (2250, 350, 1, "platform_tile")
 ]
 
 non_solid_tiles = [
@@ -123,7 +130,6 @@ class Player(Actor):
         self.update_animation()
 
     def __get_image(self):
-        #return "player_flipped_0" if self.flipped_x else "player_0"
         image_name = self.animations[self.current_animation][self.frame_index]
         if self.flipped_x:
             image_name += "_flipped"
@@ -172,8 +178,7 @@ class Enemy(Actor):
             self.frame_index = (self.frame_index + 1) % len(self.animations[self.current_animation])
 
     def update(self):
-        global camera_x
-        self.vx = (SPEED / 2) * self.direction
+        self.vx = (SPEED) * self.direction
         self.flipped_x = (self.direction == -1)
 
         new_x = self.x + self.vx
@@ -182,15 +187,13 @@ class Enemy(Actor):
         if new_x > self.right_limit - half_w:
             self.x = self.right_limit - half_w
             self.direction = -1
-            self.vx = (SPEED / 2) * self.direction
+            self.vx = (SPEED) * self.direction
         elif new_x < self.left_limit + half_w:
             self.x = self.left_limit + half_w
             self.direction = 1
-            self.vx = (SPEED / 2) * self.direction
+            self.vx = (SPEED) * self.direction
         else:
             self.x = new_x
-
-        self.x += self.vx
 
         self.vy += GRAVITY
         self.y += self.vy
@@ -234,8 +237,14 @@ exit_button = Button("button_background", WIDTH // 2, 330, "Sair")
 menu_buttons = [start_button, sound_button, exit_button]
 
 player = Player(32, 504)
-enemy = Enemy(100, 504, 100, 500, jumping=True)
 flag = Flag(2400, 504)
+
+enemy_0 = Enemy(328, 504, 328, 584)
+enemy_1 = Enemy(700, 504, 700, 930)
+enemy_2 = Enemy(1300, 504, 1300, 1550, jumping=True)
+enemy_3 = Enemy(1800, 504, 1800, 1980, jumping=True)
+enemies = [enemy_0, enemy_1, enemy_2, enemy_3]
+
 
 # =====Funções principais=====
 
@@ -244,14 +253,13 @@ def back_to_menu():
     game_state = MENU_STATE
 
 def start_game():
-    global game_state, player, enemy
+    global game_state, player, enemies
     game_state = GAME_STATE
     player.x = 32
     player.y = 504
     player.vy = 0
-    enemy.x = 100
-    enemy.y = 504
-    enemy.vy = 0
+    for enemy in enemies:
+        enemy.vy = 0
 
 def toggle_sound():
     global sound_enabled, sound_button
@@ -300,11 +308,12 @@ def update():
     global game_state
     if game_state == GAME_STATE:
         player.update()
-        enemy.update()
-        if player.colliderect(enemy):
-            play_sound_if_enabled("lose")
-            game_state = LOSE_STATE
-        elif player.colliderect(flag):
+        for enemy in enemies:
+            enemy.update()
+            if player.colliderect(enemy):
+                play_sound_if_enabled("lose")
+                game_state = LOSE_STATE
+        if player.colliderect(flag):
             play_sound_if_enabled("win")
             game_state = WIN_STATE
 
@@ -317,7 +326,8 @@ def draw():
         game_background.draw()
         draw_tiles()
         player.draw(camera_x)
-        enemy.draw(camera_x)
+        for enemy in enemies:
+            enemy.draw(camera_x)
         flag.draw(camera_x)
     elif game_state == WIN_STATE:
         win_background.draw()
